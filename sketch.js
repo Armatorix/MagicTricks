@@ -2,6 +2,8 @@ const DEBUG = true;
 const WIDTH = 640;
 const HEIGHT = 480;
 const DBG_CIRCLE_SIZE = 8;
+
+var rotation = 0;
 function setup() {
 
   hf = new Handsfree({ hands: true })
@@ -42,6 +44,7 @@ function setup() {
 
 function draw() {
   // setup camera
+  rotation += 0.1 * random(0, 1);
   image(video, 0, 0);
   drawDebugDots();
   drawMagicCircles();
@@ -70,8 +73,12 @@ function drawDebugDots() {
 function drawMagicCircles() {
   for (hand of handsPositions) {
     let size = hand.size * WIDTH;
-    image(mgc, WIDTH * hand.x - size / 2, HEIGHT * hand.y - size / 2,
-      size, size);
+    push();
+    imageMode(CENTER);
+    translate(WIDTH * hand.x, HEIGHT * hand.y);
+    rotate(rotation);
+    image(mgc, 0, 0, size, size);
+    pop();
   }
 }
 
