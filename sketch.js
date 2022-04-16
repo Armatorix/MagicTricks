@@ -4,6 +4,7 @@ const HEIGHT = 480;
 const DBG_CIRCLE_SIZE = 8;
 
 var rotation = 0;
+
 function setup() {
 
   hf = new Handsfree({ hands: true })
@@ -22,7 +23,8 @@ function setup() {
         break;
       case 2:
         handsPositions = [handStateFromLandmarks(data.hands.multiHandLandmarks[0]),
-        handStateFromLandmarks(data.hands.multiHandLandmarks[1])]
+        handStateFromLandmarks(data.hands.multiHandLandmarks[1])
+        ]
         break;
     }
   })
@@ -57,10 +59,11 @@ function draw() {
   //   console.log(hf.data.hands.landmarks[0])
   // }
 }
+
 function drawDebugDots() {
   if (hf?.data?.hands?.multiHandLandmarks !== undefined && DEBUG) {
     fill(244, 17, 17)
-    for (handLandmarks of hf?.data?.hands?.multiHandLandmarks) {
+    for (handLandmarks of hf.data.hands.multiHandLandmarks) {
       for (handLandmark of handLandmarks) {
         circle(handLandmark.x * WIDTH,
           handLandmark.y * HEIGHT,
@@ -72,7 +75,7 @@ function drawDebugDots() {
 
 function drawMagicCircles() {
   for (hand of handsPositions) {
-    let size = hand.size * WIDTH;
+    size = hand.size * 2.2;
     push();
     imageMode(CENTER);
     translate(WIDTH * hand.x, HEIGHT * hand.y);
@@ -86,7 +89,23 @@ function handStateFromLandmarks(s) {
   return {
     x: s[21].x,
     y: s[21].y,
-    size: sqrt((s[4].x - s[20].x) * (s[4].x - s[20].x) +
-      (s[4].y - s[20].y) * (s[4].y - s[20].y))
-  };
+    size: maxDistance(s),
+  }
+}
+
+function maxDistance(s) {
+  m = 0
+  for (v of s) {
+    d = pointsDistance(v, s[21])
+    if (d > m) {
+      m = d
+    }
+  }
+  return m
+}
+
+function pointsDistance(p1, p2) {
+  x = WIDTH * (p1.x - p2.x)
+  y = HEIGHT * (p1.y - p2.y)
+  return sqrt(x * x + y * y)
 }
