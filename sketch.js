@@ -24,7 +24,14 @@ class MyHand {
     this.y = 0;
   }
 
-  // catchGesture();
+  updateWithGesture(gesture) {
+    this.gestures.push(gesture);
+    console.log(this.side, gesture);
+    // TODO check confidence and gestur name
+    if (gesture.name == 'fist') {
+      this.magicEnabled = true;
+    }
+  }
   updateWithLandmarks(landmarks, confidence) {
     this.rotation += random(-0.02, 0.12);
     this.confidence = confidence;
@@ -45,15 +52,21 @@ class MyHand {
 
   draw() {
     if (this.drawable) {
-      let size = this.size * 2.2;
-      push();
-      imageMode(CENTER);
-      translate(WIDTH * this.x, HEIGHT * this.y);
-      rotate(this.rotation);
-      image(mgc, 0, 0, size, size);
-      pop();
-
+      if (this.magicEnabled) {
+        this.drawMagicCircle();
+      }
     }
+  }
+
+  drawMagicCircle() {
+    let size = this.size * 2.2;
+    push();
+    imageMode(CENTER);
+    translate(WIDTH * this.x, HEIGHT * this.y);
+    rotate(this.rotation);
+    image(mgc, 0, 0, size, size);
+    pop();
+
   }
 }
 
@@ -160,7 +173,16 @@ function setup() {
   })
 
   hf.use('gestureCollector', data => {
-    // console.log(data.hands)
+    console.log(data.hands)
+    if (data?.hands?.gesture?.length !== undefined) {
+      // indexes swapped
+      if (data?.hands?.gesture[1] !== null) {
+        hands[LEFT_IDX].updateWithGesture(data.hands.gesture[1]);
+      }
+      if (data?.hands?.gesture[0] !== null) {
+        hands[RIGHT_IDX].updateWithGesture(data.hands.gesture[0]);
+      }
+    }
   })
   // get gesture category(calulate based on arcs between fingers and state (curled or straightened))
   // append to structure {gesture + how many times in the row} (append only if first sequence is from starter)
@@ -170,6 +192,7 @@ function setup() {
 
 function draw() {
   // setup camera
+
   image(video, 0, 0);
 
   for (hand of hands) {
