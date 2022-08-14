@@ -7,7 +7,23 @@ var rotation = 0;
 
 function setup() {
 
-  hf = new Handsfree({ hands: true })
+  createCanvas(WIDTH, HEIGHT);
+  background(0, 0, 0, 0.1);
+  video = createCapture(VIDEO);
+  video.size(WIDTH, HEIGHT)
+  video.hide();
+
+  // load all the images etc.
+  mgc = loadImage("imgs/magic-strange.png");
+
+  hf = new Handsfree({
+    hands: true,
+    maxNumHands: 2,
+    setup: {
+      video: video,
+    },
+  })
+  hf.enablePlugins('browser')
   hf.start()
   handsPositions = []
 
@@ -32,15 +48,6 @@ function setup() {
   // get gesture category(calulate based on arcs between fingers and state (curled or straightened))
   // append to structure {gesture + how many times in the row} (append only if first sequence is from starter)
   // verify if gestures in array are from sequence 
-
-  createCanvas(WIDTH, HEIGHT);
-  background(0, 0, 0, 0.1);
-  video = createCapture(VIDEO);
-  video.size(WIDTH, HEIGHT)
-  video.hide();
-
-  // load all the images etc.
-  mgc = loadImage("imgs/magic-strange.png");
 }
 
 
