@@ -1,9 +1,13 @@
 const DEBUG = true;
+const DBG_CIRCLE_SIZE = 8;
+
 const WIDTH = 640;
 const HEIGHT = 480;
-const DBG_CIRCLE_SIZE = 8;
+
 const LEFT_IDX = 0;
 const RIGHT_IDX = 1;
+
+const DRAW_CONFIDENCE = 0.8;
 
 class MyHand {
   constructor(side) {
@@ -31,7 +35,12 @@ class MyHand {
     this.x = landmarks[21].x;
     this.y = landmarks[21].y;
     this.size = maxDistance(landmarks);
-    this.drawable = true;
+
+    if (this.confidence > DRAW_CONFIDENCE) {
+      this.drawable = true;
+    } else {
+      this.drawable = false;
+    }
   }
 
   draw() {
@@ -123,26 +132,26 @@ function setup() {
         break;
       case 1:
         if (data.hands.multiHandedness[0].label === "Right") {
-          rLandmarks = data.hands.multiHandLandmarks[0]
-          rConfidance = data.hands.multiHandedness[0].confidence
+          rLandmarks = data.hands.multiHandLandmarks[0];
+          rConfidance = data.hands.multiHandedness[0].score;
         } else {
-          lLandmarks = data.hands.multiHandLandmarks[0]
-          lConfidance = data.hands.multiHandedness[0].confidence
+          lLandmarks = data.hands.multiHandLandmarks[0];
+          lConfidance = data.hands.multiHandedness[0].score;
         }
         break;
       case 2:
         if (data.hands.multiHandedness[0].label === "Right") {
-          rLandmarks = data.hands.multiHandLandmarks[0]
-          rConfidance = data.hands.multiHandedness[0].confidence
+          rLandmarks = data.hands.multiHandLandmarks[0];
+          rConfidance = data.hands.multiHandedness[0].score;
 
-          lLandmarks = data.hands.multiHandLandmarks[1]
-          lConfidance = data.hands.multiHandedness[1].confidence
+          lLandmarks = data.hands.multiHandLandmarks[1];
+          lConfidance = data.hands.multiHandedness[1].score;
         } else {
-          lLandmarks = data.hands.multiHandLandmarks[0]
-          lConfidance = data.hands.multiHandedness[0].confidence
+          lLandmarks = data.hands.multiHandLandmarks[0];
+          lConfidance = data.hands.multiHandedness[0].score;
 
-          rLandmarks = data.hands.multiHandLandmarks[1]
-          rConfidance = data.hands.multiHandedness[1].confidence
+          rLandmarks = data.hands.multiHandLandmarks[1];
+          rConfidance = data.hands.multiHandedness[1].score;
         }
         break;
     }
@@ -151,7 +160,7 @@ function setup() {
   })
 
   hf.use('gestureCollector', data => {
-    console.log(data.hands)
+    // console.log(data.hands)
   })
   // get gesture category(calulate based on arcs between fingers and state (curled or straightened))
   // append to structure {gesture + how many times in the row} (append only if first sequence is from starter)
