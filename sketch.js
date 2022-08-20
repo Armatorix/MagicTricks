@@ -9,6 +9,8 @@ const RIGHT_IDX = 1;
 
 const DRAW_CONFIDENCE = 0.8;
 
+let dbgBox = window.document.getElementById("debug-box");
+
 class MyHand {
   constructor(side) {
     this.side = side;
@@ -26,7 +28,7 @@ class MyHand {
 
   updateWithGesture(gesture) {
     this.gestures.push(gesture);
-    console.log(this.side, gesture);
+    dbgBox.innerHTML += this.side+ " : "+gesture.name +"</br>";
     // TODO check confidence and gestur name
     if (gesture.name == 'fist') {
       this.magicEnabled = true;
@@ -51,6 +53,7 @@ class MyHand {
   }
 
   draw() {
+    dbgBox.innerHTML = "";
     if (this.drawable) {
       if (this.magicEnabled) {
         this.drawMagicCircle();
@@ -76,7 +79,11 @@ var hands = [new MyHand("left"), new MyHand("right")];
 
 function setup() {
 
-  createCanvas(WIDTH, HEIGHT);
+  let cnv = createCanvas(WIDTH, HEIGHT);
+  cnv.parent(select("#video-box"))
+
+  
+
   background(0, 0, 0, 0.1);
   video = createCapture(VIDEO);
   video.size(WIDTH, HEIGHT)
@@ -173,7 +180,6 @@ function setup() {
   })
 
   hf.use('gestureCollector', data => {
-    console.log(data.hands)
     if (data?.hands?.gesture?.length !== undefined) {
       // indexes swapped
       if (data?.hands?.gesture[1] !== null) {
