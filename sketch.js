@@ -27,13 +27,25 @@ class MyHand {
   }
 
   updateWithGesture(gesture) {
-    this.gestures.push(gesture);
-    dbgBox.innerHTML += this.side+ " : "+gesture.name +"</br>";
-    // TODO check confidence and gestur name
-    if (gesture.name == 'fist') {
-      this.magicEnabled = true;
+    let lastGesture = (this.gestures.length>0) ? this.gestures[this.gestures.length-1] : {name:''}
+    if (lastGesture.name == gesture.name)  {
+      lastGesture.count++;
+      this.gestures[this.gestures.length-1]=lastGesture;
+    }else {
+      gesture.count = 1;
+      this.gestures.push(gesture);
     }
   }
+
+  debugLogUpdate() {
+    dbgBox.innerHTML += `<div style="display: table-cell;">`
+    dbgBox.innerHTML += this.side +": <br>";
+    for (v of this.gestures) {
+      dbgBox.innerHTML += v.name +" : "+v.count+"<br>";
+    }
+    dbgBox.innerHTML += `</div>`
+  }
+
   updateWithLandmarks(landmarks, confidence) {
     this.rotation += random(-0.02, 0.12);
     this.confidence = confidence;
@@ -53,7 +65,6 @@ class MyHand {
   }
 
   draw() {
-    dbgBox.innerHTML = "";
     if (this.drawable) {
       if (this.magicEnabled) {
         this.drawMagicCircle();
@@ -138,7 +149,44 @@ function setup() {
       ]
     ]
   })
-
+  hf.useGesture({
+    "name": "pistol",
+    "algorithm": "fingerpose",
+    "models": "hands",
+    "confidence": 7.5,
+    "description": [
+      [
+        "addCurl",
+        "Thumb",
+        "NoCurl",
+        1
+      ],
+      [
+        "addCurl",
+        "Index",
+        "NoCurl",
+        1
+      ],
+      [
+        "addCurl",
+        "Middle",
+        "FullCurl",
+        1
+      ],
+      [
+        "addCurl",
+        "Ring",
+        "FullCurl",
+        1
+      ],
+      [
+        "addCurl",
+        "Pinky",
+        "FullCurl",
+        1
+      ],
+    ]
+  })
 
   hf.use('positionCollector', data => {
     let lLandmarks = null;
@@ -182,10 +230,11 @@ function setup() {
   hf.use('gestureCollector', data => {
     if (data?.hands?.gesture?.length !== undefined) {
       // indexes swapped
-      if (data?.hands?.gesture[1] !== null) {
+      // move checks to update
+      if (data?.hands?.gesture[1] !== null && data?.hands?.gesture[1].name !== "") {
         hands[LEFT_IDX].updateWithGesture(data.hands.gesture[1]);
       }
-      if (data?.hands?.gesture[0] !== null) {
+      if (data?.hands?.gesture[0] !== null && data?.hands?.gesture[0].name !== "") {
         hands[RIGHT_IDX].updateWithGesture(data.hands.gesture[0]);
       }
     }
@@ -201,9 +250,14 @@ function draw() {
 
   image(video, 0, 0);
 
+  dbgBox.innerHTML = `<div style="width: 100%; display: table;">
+  <div style="display: table-row">`;
   for (hand of hands) {
     hand.draw();
+    hand.debugLogUpdate();
   }
+  dbgBox.innerHTML += `</div>
+  </div>`
 }
 
 
